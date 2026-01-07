@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import Api_Service from "../../Service/Api_Service";
 
 const SupportPage = () => {
+  const [movies, setMovies] = useState([]);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -10,6 +12,16 @@ const SupportPage = () => {
     agreed: false,
   });
 
+  /* ================= API ================= */
+  useEffect(() => {
+    const getMovies = async () => {
+      const data = await Api_Service.GetData("movie/popular");
+      setMovies(data?.results?.slice(0, 8) || []);
+    };
+    getMovies();
+  }, []);
+
+  /* ================= FORM ================= */
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -26,37 +38,34 @@ const SupportPage = () => {
     alert("Message sent successfully!");
   };
 
-  const movies = [
-    { title: "Heist Korea", img: "https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400" },
-    { title: "Stranger Things", img: "https://images.unsplash.com/photo-1594908900066-3f47337549d8?w=400" },
-    { title: "The Blind", img: "https://images.unsplash.com/photo-1574267432644-f02d5a3c5fc9?w=400" },
-    { title: "The Defenders", img: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=400" },
-    { title: "Black Panther", img: "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=400" },
-    { title: "Moonlight", img: "https://images.unsplash.com/photo-1542204165-65bf26472b9b?w=400" },
-    { title: "Fire", img: "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=400" },
-    { title: "Khailee", img: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400" },
-  ];
+  const posterUrl = (path) =>
+    path
+      ? `https://image.tmdb.org/t/p/w500${path}`
+      : "/Image/no-poster.png";
 
   return (
     <div className="bg-black text-white min-h-screen px-5 pt-[130px] pb-10">
       <div className="max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-[60px]">
+        
         {/* LEFT */}
         <div>
           <h1 className="text-4xl font-bold mb-4">
             Welcome to our support page!
           </h1>
+
           <p className="text-gray-400 mb-10 leading-relaxed">
             We're here to help you with any problems you may be having with our product.
           </p>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {movies.map((movie, i) => (
+            {movies.map((movie) => (
               <div
-                key={i}
-                className="aspect-[2/3] rounded-lg overflow-hidden shadow-lg hover:scale-105 transition"
+                key={movie.id}
+                className="aspect-[2/3] rounded-lg overflow-hidden shadow-lg 
+                           hover:scale-105 transition duration-300"
               >
                 <img
-                  src={movie.img}
+                  src={posterUrl(movie.poster_path)}
                   alt={movie.title}
                   className="w-full h-full object-cover"
                 />
@@ -67,7 +76,8 @@ const SupportPage = () => {
 
         {/* RIGHT FORM */}
         <div className="bg-[#0a0a0a] border border-[#222] rounded-xl p-10">
-          {/* names */}
+          
+          {/* Names */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
             <div>
               <label className="block mb-2 text-sm font-medium">First Name</label>
@@ -92,7 +102,7 @@ const SupportPage = () => {
             </div>
           </div>
 
-          {/* email & phone */}
+          {/* Email & Phone */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
             <div>
               <label className="block mb-2 text-sm font-medium">Email</label>
@@ -116,14 +126,14 @@ const SupportPage = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  placeholder="+998"
+                  placeholder="Enter phone number"
                   className="flex-1 bg-black border border-[#333] rounded-md px-4 py-3 text-sm outline-none"
                 />
               </div>
             </div>
           </div>
 
-          {/* message */}
+          {/* Message */}
           <div className="mb-6">
             <label className="block mb-2 text-sm font-medium">Message</label>
             <textarea
@@ -136,7 +146,7 @@ const SupportPage = () => {
             />
           </div>
 
-          {/* checkbox */}
+          {/* Checkbox */}
           <div className="flex items-center gap-3 mb-6">
             <input
               type="checkbox"
@@ -150,7 +160,7 @@ const SupportPage = () => {
             </span>
           </div>
 
-          {/* button */}
+          {/* Button */}
           <button
             onClick={handleSubmit}
             className="w-full bg-red-600 hover:bg-red-700 transition py-4 rounded-md font-semibold"

@@ -161,8 +161,14 @@ export default function MoviePage() {
             </button>
           </div>
 
-          {/* REVIEWS */}
-          <h2 className="text-2xl font-bold mb-4">Reviews</h2>
+          {/* DESCRIPTION */}
+          <div className="bg-[#141414] rounded-xl p-6 mb-12">
+            <p className="text-gray-400 text-sm mb-2">Description</p>
+            <p className="text-white leading-relaxed max-w-4xl">
+              {movie.overview || "No description available for this movie."}
+            </p>
+          </div>
+
           <div className="relative flex items-center">
             <button
               onClick={() => setReviewIndex(Math.max(0, reviewIndex - 1))}
@@ -210,15 +216,57 @@ export default function MoviePage() {
             <img
               src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
               alt={movie.title}
-              className="rounded mb-2"
+              className="rounded mb-3"
             />
-            <p className="text-sm text-gray-300">Director: {director}</p>
+
             <p className="text-sm text-gray-300">
-              Rating: {movie.vote_average?.toFixed(1)}
+              <span className="text-gray-400">Director:</span> {director}
             </p>
+
+            <p className="text-sm text-gray-300">
+              <span className="text-gray-400">Rating:</span>{" "}
+              {movie.vote_average?.toFixed(1)} / 10
+            </p>
+
+            <p className="text-sm text-gray-300">
+              <span className="text-gray-400">Votes:</span>{" "}
+              {movie.vote_count?.toLocaleString()}
+            </p>
+
+            <p className="text-sm text-gray-300">
+              <span className="text-gray-400">Release:</span>{" "}
+              {movie.release_date || "—"}
+            </p>
+
+            <p className="text-sm text-gray-300">
+              <span className="text-gray-400">Runtime:</span>{" "}
+              {movie.runtime ? `${movie.runtime} min` : "—"}
+            </p>
+
+            <p className="text-sm text-gray-300">
+              <span className="text-gray-400">Language:</span>{" "}
+              {movie.original_language?.toUpperCase()}
+            </p>
+
+            {movie.genres?.length > 0 && (
+              <div className="pt-2">
+                <p className="text-sm text-gray-400 mb-1">Genres</p>
+                <div className="flex flex-wrap gap-2">
+                  {movie.genres.map((g) => (
+                    <span
+                      key={g.id}
+                      className="text-xs bg-neutral-800 px-2 py-1 rounded"
+                    >
+                      {g.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <button
               onClick={() => navigate(-1)}
-              className="mt-4 w-full bg-neutral-800 py-2 rounded hover:bg-neutral-700 cursor-pointer"
+              className="mt-5 w-full bg-neutral-800 py-2 rounded hover:bg-neutral-700 cursor-pointer"
             >
               Back
             </button>

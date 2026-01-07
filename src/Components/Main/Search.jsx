@@ -53,7 +53,7 @@ export default function Search() {
     } else if (item.media_type === "tv") {
       navigate(`/tv/${item.id}`);
     } else {
-      navigate(`/movie/${item.id}`, {
+      navigate(`/movies/${item.id}`, {
         state: { movie: item },
       });
     }
