@@ -37,10 +37,11 @@ export default function HeroSection() {
             <div
               key={index}
               className="flex-none 
-              w-[100px] h-[150px]
-              sm:w-[120px] sm:h-[180px]
-              md:w-[150px] md:h-[225px]
-              lg:w-[180px] lg:h-[270px]
+               w-32.5 h-48.75         
+              sm:w-37.5 sm:h-56.25
+              md:w-45 md:h-67.5
+              lg:w-55 lg:h-82.5
+
               rounded-lg sm:rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300"
             >
               <img
@@ -60,10 +61,11 @@ export default function HeroSection() {
             <div
               key={index}
               className="flex-none 
-              w-[100px] h-[150px]
-              sm:w-[120px] sm:h-[180px]
-              md:w-[150px] md:h-[225px]
-              lg:w-[180px] lg:h-[270px]
+            w-32.5 h-48.75         
+            sm:w-37.5 sm:h-56.25
+            md:w-45 md:h-67.5
+            lg:w-55 lg:h-82.5
+
               rounded-lg sm:rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300"
             >
               <img
@@ -83,10 +85,10 @@ export default function HeroSection() {
             <div
               key={index}
               className="flex-none 
-              w-[100px] h-[150px]
-              sm:w-[120px] sm:h-[180px]
-              md:w-[150px] md:h-[225px]
-              lg:w-[180px] lg:h-[270px]
+                  w-32.5 h-48.75         
+            sm:w-37.5 sm:h-56.25
+            md:w-45 md:h-67.5
+            lg:w-55 lg:h-82.5
               rounded-lg sm:rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300"
             >
               <img
@@ -102,7 +104,7 @@ export default function HeroSection() {
       {/* CENTER OVERLAY */}
       <div
         className="absolute inset-0 z-20 flex items-center justify-center text-center px-4 sm:px-6 md:px-8 
-      bg-gradient-to-r from-black/85 via-black/70 to-black/85"
+      bg-linear-to-r from-black/85 via-black/70 to-black/85"
       >
         <div className="max-w-4xl w-full">
           {/* Logo */}

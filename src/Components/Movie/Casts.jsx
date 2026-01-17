@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaChevronLeft, FaChevronRight, FaStar } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaStar, FaPlay } from "react-icons/fa";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import Api_Service from "../../Service/Api_Service";
 
@@ -18,26 +18,27 @@ export default function MoviePage() {
   const [reviewIndex, setReviewIndex] = useState(0);
   const [playVideo, setPlayVideo] = useState(false);
 
-  const CAST_VISIBLE = 7;
+  const CAST_DESKTOP = 7;
+  const CAST_MOBILE = 5;
   const REVIEW_VISIBLE = 2;
 
+  /* ---------------- FETCH MOVIE ---------------- */
   useEffect(() => {
     if (!movie) {
       Api_Service.GetData(`movie/${id}`).then(setMovie);
     }
   }, [id, movie]);
 
+  /* ---------------- EXTRA DATA ---------------- */
   useEffect(() => {
     if (!movie?.id) return;
 
-    // Cast & Director
     Api_Service.GetData(`movie/${movie.id}/credits`).then((data) => {
       setActors(data.cast.slice(0, 20));
       const dir = data.crew.find((p) => p.job === "Director");
       setDirector(dir?.name || "—");
     });
 
-    // Trailer key
     Api_Service.GetData(`movie/${movie.id}/videos`).then((data) => {
       const trailer = data.results.find(
         (v) => v.type === "Trailer" && v.site === "YouTube"
@@ -45,7 +46,6 @@ export default function MoviePage() {
       setTrailerKey(trailer?.key || null);
     });
 
-    // Reviews
     Api_Service.GetData(`movie/${movie.id}/reviews`).then((data) => {
       setReviews(data.results.slice(0, 10));
     });
@@ -59,25 +59,28 @@ export default function MoviePage() {
     );
   }
 
-  const visibleActors = actors.slice(castIndex, castIndex + CAST_VISIBLE);
+  const visibleActorsDesktop = actors.slice(
+    castIndex,
+    castIndex + CAST_DESKTOP
+  );
+
   const visibleReviews = reviews.slice(
     reviewIndex,
     reviewIndex + REVIEW_VISIBLE
   );
 
   return (
-    <div className="bg-neutral-900 min-h-screen text-white pt-24 px-4">
-      {/* HEADER */}
-      <div className="relative max-w-6xl mx-auto mb-2 rounded-xl overflow-hidden shadow-xl h-[460px]">
-        {/* Video yoki Image */}
+    <div className="bg-neutral-900 min-h-screen text-white pt-24 px-4 sm:px-8">
+      {/* ================= HEADER ================= */}
+      <div className="relative max-w-7xl mx-auto rounded-xl overflow-hidden shadow-xl h-64 sm:h-96 md:h-130">
         {playVideo && trailerKey ? (
           <iframe
-            src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1&controls=1&modestbranding=1`}
-            className="w-full h-full object-cover"
+            src={`https://www.youtube.com/embed/${trailerKey}?autoplay=1`}
+            className="w-full h-full"
             allow="autoplay; encrypted-media"
             allowFullScreen
             title="Trailer"
-          ></iframe>
+          />
         ) : (
           <img
             src={`https://image.tmdb.org/t/p/original${movie.backdrop_path}`}
@@ -85,103 +88,143 @@ export default function MoviePage() {
             className="w-full h-full object-cover"
           />
         )}
+
         {!playVideo && (
-          <div className="absolute bottom-16 text-center px-6">
-            <h1 className="text-4xl font-black mb-2">{movie.title}</h1>
-          </div>
-        )}
-        {!playVideo && trailerKey && (
-          <div className="absolute inset-0 flex justify-center items-center">
-            <button
-              onClick={() => setPlayVideo(true)}
-              className="bg-red-600 hover:bg-red-700 px-8 py-4 rounded-full flex items-center gap-2 text-2xl z-10 cursor-pointer"
-            >
-              <i class="fa-solid fa-play"></i> Play Trailer
-            </button>
-          </div>
+          <>
+            <div className="absolute inset-0 bg-black/40" />
+
+            <div className="absolute bottom-6 w-full text-center px-4">
+              <h1 className="text-2xl sm:text-4xl font-black mb-4">
+                {movie.title}
+              </h1>
+
+              {trailerKey && (
+                <button
+                  onClick={() => setPlayVideo(true)}
+                  className="
+                    bg-red-600 hover:bg-red-700
+                    w-14 h-14 sm:w-auto sm:h-auto
+                    sm:px-8 sm:py-4
+                    rounded-full
+                    flex items-center justify-center gap-2
+                    mx-auto
+                    text-xl sm:text-2xl
+                  "
+                >
+                  <FaPlay />
+                  <span className="hidden sm:inline">Play Trailer</span>
+                </button>
+              )}
+            </div>
+          </>
         )}
       </div>
+
+      {/* CLOSE VIDEO */}
       {playVideo && (
-        <div className="flex justify-center mb-10">
+        <div className="flex justify-center mt-6">
           <button
             onClick={() => setPlayVideo(false)}
-            className="bg-red-600 hover:bg-red-700 px-140 py-4 rounded-full text-xl font-semibold cursor-pointer"
+            className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-full"
           >
-            Close
+            Close Trailer
           </button>
         </div>
       )}
 
-      {/* CONTENT */}
-      <div className="max-w-6xl mx-auto grid md:grid-cols-[1fr_320px] gap-10">
-        {/* LEFT */}
-        <div>
-          {/* CAST */}
-          <h2 className="text-2xl font-bold mb-4">Cast</h2>
-          <div className="relative flex items-center mb-12">
-            <button
-              onClick={() => setCastIndex(Math.max(0, castIndex - 1))}
-              className="absolute left-0 bg-black/60 p-3 rounded-full z-10 cursor-pointer"
-            >
-              <FaChevronLeft />
-            </button>
+      {/* ================= CAST (DIRECTLY UNDER HEADER) ================= */}
+      <section className="max-w-7xl mx-auto mt-12">
+        <h2 className="text-2xl font-bold mb-4">Cast</h2>
 
-            <div className="flex gap-3 mx-12 overflow-x-hidden">
-              {visibleActors.map((actor) => (
-                <div
-                  key={actor.id}
-                  onClick={() => navigate(`/actor/${actor.id}`)}
-                  className="w-[95px] text-center cursor-pointer"
-                >
-                  <img
-                    src={
-                      actor.profile_path
-                        ? `https://image.tmdb.org/t/p/w200${actor.profile_path}`
-                        : "/Image/no-avatar.png"
-                    }
-                    className="w-24 h-24 rounded-xl object-cover mb-1"
-                  />
-                  <p className="text-sm truncate">{actor.name}</p>
-                  <p className="text-xs text-gray-400 truncate">
-                    {actor.character}
-                  </p>
-                </div>
-              ))}
+        {/* MOBILE SCROLL */}
+        <div className="flex gap-4 overflow-x-auto sm:hidden pb-2">
+          {actors.slice(0, CAST_MOBILE).map((actor) => (
+            <div
+              key={actor.id}
+              onClick={() => navigate(`/actor/${actor.id}`)}
+              className="w-24 shrink-0 text-center cursor-pointer"
+            >
+              <img
+                src={
+                  actor.profile_path
+                    ? `https://image.tmdb.org/t/p/w200${actor.profile_path}`
+                    : "/Image/no-avatar.png"
+                }
+                className="w-24 h-24 rounded-xl object-cover mb-1"
+              />
+              <p className="text-sm truncate">{actor.name}</p>
+              <p className="text-xs text-gray-400 truncate">
+                {actor.character}
+              </p>
             </div>
+          ))}
+        </div>
 
-            <button
-              onClick={() =>
-                setCastIndex(
-                  Math.min(actors.length - CAST_VISIBLE, castIndex + 1)
-                )
-              }
-              className="absolute right-0 bg-black/60 p-3 rounded-full z-10 cursor-pointer"
-            >
-              <FaChevronRight />
-            </button>
+        {/* DESKTOP SLIDER */}
+        <div className="relative hidden sm:block">
+          <button
+            onClick={() => setCastIndex(Math.max(0, castIndex - 1))}
+            className="absolute left-0 top-15 -translate-y-1/2 bg-black/60 p-3 rounded-full z-10"
+          >
+            <FaChevronLeft />
+          </button>
+
+          <div className="flex gap-4 mx-12">
+            {visibleActorsDesktop.map((actor) => (
+              <div
+                key={actor.id}
+                onClick={() => navigate(`/actor/${actor.id}`)}
+                className="w-24 text-center cursor-pointer"
+              >
+                <img
+                  src={
+                    actor.profile_path
+                      ? `https://image.tmdb.org/t/p/w200${actor.profile_path}`
+                      : "/Image/no-avatar.png"
+                  }
+                  className="w-24 h-24 rounded-xl object-cover mb-1"
+                />
+                <p className="text-sm truncate">{actor.name}</p>
+                <p className="text-xs text-gray-400 truncate">
+                  {actor.character}
+                </p>
+              </div>
+            ))}
           </div>
 
-          {/* DESCRIPTION */}
-          <div className="bg-[#141414] rounded-xl p-6 mb-12">
+          <button
+            onClick={() =>
+              setCastIndex(
+                Math.min(actors.length - CAST_DESKTOP, castIndex + 1)
+              )
+            }
+            className="absolute right-104 top-15 -translate-y-1/2 bg-black/60 p-3 rounded-full z-10"
+          >
+            <FaChevronRight />
+          </button>
+        </div>
+      </section>
+
+      {/* ================= MAIN CONTENT ================= */}
+      <div className="max-w-7xl mx-auto mt-10 grid grid-cols-1 md:grid-cols-[1fr_320px] gap-10">
+        {/* DESCRIPTION */}
+        <div>
+          <div className="bg-[#141414] rounded-xl p-5 sm:p-6 mb-12">
             <p className="text-gray-400 text-sm mb-2">Description</p>
-            <p className="text-white leading-relaxed max-w-4xl">
-              {movie.overview || "No description available for this movie."}
+            <p className="leading-relaxed text-sm sm:text-base">
+              {movie.overview || "No description available."}
             </p>
           </div>
 
-          <div className="relative flex items-center">
-            <button
-              onClick={() => setReviewIndex(Math.max(0, reviewIndex - 1))}
-              className="absolute left-0 bg-black/60 p-3 rounded-full z-10 cursor-pointer"
-            >
-              <FaChevronLeft />
-            </button>
+          {/* REVIEWS */}
+          <div className="relative">
+            <h2 className="text-2xl font-bold mb-4">Reviews</h2>
 
-            <div className="flex gap-6 mx-12">
+            <div className="flex gap-6 overflow-x-auto md:overflow-hidden">
               {visibleReviews.map((review) => (
                 <div
                   key={review.id}
-                  className="bg-[#1a1a1a] p-5 rounded-lg w-[320px]"
+                  className="bg-[#1a1a1a] p-5 rounded-lg min-w-70"
                 >
                   <div className="flex justify-between mb-2">
                     <span>{review.author}</span>
@@ -196,77 +239,32 @@ export default function MoviePage() {
                 </div>
               ))}
             </div>
-
-            <button
-              onClick={() =>
-                setReviewIndex(
-                  Math.min(reviews.length - REVIEW_VISIBLE, reviewIndex + 1)
-                )
-              }
-              className="absolute right-18 bg-black/60 p-3 rounded-full z-10 cursor-pointer"
-            >
-              <FaChevronRight />
-            </button>
           </div>
         </div>
 
-        {/* RIGHT */}
-        <aside>
-          <div className="bg-[#111] p-6 rounded-xl sticky top-28 space-y-3">
+        {/* RIGHT POSTER (RESPONSIVE) */}
+        <aside className="md:sticky md:top-16">
+          <div className="bg-[#111] p-6 rounded-xl space-y-3">
             <img
               src={`https://image.tmdb.org/t/p/w300${movie.poster_path}`}
-              alt={movie.title}
-              className="rounded mb-3"
+              className="rounded mx-auto md:mx-0"
             />
 
-            <p className="text-sm text-gray-300">
+            <p>
               <span className="text-gray-400">Director:</span> {director}
             </p>
-
-            <p className="text-sm text-gray-300">
+            <p>
               <span className="text-gray-400">Rating:</span>{" "}
-              {movie.vote_average?.toFixed(1)} / 10
+              {movie.vote_average?.toFixed(1)}
             </p>
-
-            <p className="text-sm text-gray-300">
+            <p>
               <span className="text-gray-400">Votes:</span>{" "}
               {movie.vote_count?.toLocaleString()}
             </p>
 
-            <p className="text-sm text-gray-300">
-              <span className="text-gray-400">Release:</span>{" "}
-              {movie.release_date || "—"}
-            </p>
-
-            <p className="text-sm text-gray-300">
-              <span className="text-gray-400">Runtime:</span>{" "}
-              {movie.runtime ? `${movie.runtime} min` : "—"}
-            </p>
-
-            <p className="text-sm text-gray-300">
-              <span className="text-gray-400">Language:</span>{" "}
-              {movie.original_language?.toUpperCase()}
-            </p>
-
-            {movie.genres?.length > 0 && (
-              <div className="pt-2">
-                <p className="text-sm text-gray-400 mb-1">Genres</p>
-                <div className="flex flex-wrap gap-2">
-                  {movie.genres.map((g) => (
-                    <span
-                      key={g.id}
-                      className="text-xs bg-neutral-800 px-2 py-1 rounded"
-                    >
-                      {g.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
             <button
               onClick={() => navigate(-1)}
-              className="mt-5 w-full bg-neutral-800 py-2 rounded hover:bg-neutral-700 cursor-pointer"
+              className="w-full bg-neutral-800 py-2 rounded hover:bg-neutral-700"
             >
               Back
             </button>

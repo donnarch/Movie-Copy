@@ -8,22 +8,27 @@ import Movies from "../Pages/Movies";
 import Support from "../Pages/Support";
 import Subscription from "../Pages/Subscription";
 import Search from "../Components/Main/Search";
-import Casts from "../Components/Movie/Casts"; // Correct Movie page
-import Actor from "../Components/Movie/Movie_info"; // Correct Actor page
+import Casts from "../Components/Movie/Casts";
+import Actor from "../Components/Movie/Movie_info";
 
 function App() {
   return (
     <BrowserRouter>
       <Navbar />
+
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/movies" element={<Movies />} />
-        <Route path="/movies/:id" element={<Casts />} />
+
+        {/* 🔥 MUHIM FIX */}
+        <Route path="/movie/:id" element={<Casts />} />
+
         <Route path="/actor/:actorId" element={<Actor />} />
         <Route path="/subscription" element={<Subscription />} />
         <Route path="/support" element={<Support />} />
         <Route path="/search" element={<Search />} />
       </Routes>
+
       <Start />
       <Footer />
     </BrowserRouter>

@@ -19,13 +19,76 @@ const Actor = () => {
       setMovies(data.cast.filter((m) => m.poster_path))
     );
   }, [actorId]);
-  const scrollLeft = () => {
-    sliderRef.current.scrollBy({ left: -500, behavior: "smooth" });
-  };
 
-  const scrollRight = () => {
-    sliderRef.current.scrollBy({ left: 500, behavior: "smooth" });
-  };
+  // Drag-to-scroll + wheel horizontal scroll + touch support
+  useEffect(() => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+
+    let isDown = false;
+    let startX = 0;
+    let scrollLeftStart = 0;
+
+    const onMouseDown = (e) => {
+      isDown = true;
+      slider.classList.add("cursor-grabbing");
+      startX = e.pageX - slider.offsetLeft;
+      scrollLeftStart = slider.scrollLeft;
+    };
+
+    const onMouseMove = (e) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - slider.offsetLeft;
+      const walk = (x - startX) * 1; // adjust multiplier for sensitivity
+      slider.scrollLeft = scrollLeftStart - walk;
+    };
+
+    const onMouseUp = () => {
+      isDown = false;
+      slider.classList.remove("cursor-grabbing");
+    };
+
+    // allow vertical mouse wheel to scroll horizontally inside the slider
+    const onWheel = (e) => {
+      // if user is doing a horizontal scroll already, let it be
+      // otherwise convert vertical wheel into horizontal scroll
+      if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
+        e.preventDefault();
+        slider.scrollBy({ left: e.deltaY, behavior: "auto" });
+      }
+    };
+
+    // Touch support
+    let touchStartX = 0;
+    let touchScrollLeft = 0;
+    const onTouchStart = (e) => {
+      touchStartX = e.touches[0].pageX;
+      touchScrollLeft = slider.scrollLeft;
+    };
+    const onTouchMove = (e) => {
+      const x = e.touches[0].pageX;
+      const walk = (x - touchStartX) * 1;
+      slider.scrollLeft = touchScrollLeft - walk;
+    };
+
+    slider.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+    slider.addEventListener("wheel", onWheel, { passive: false });
+
+    slider.addEventListener("touchstart", onTouchStart, { passive: true });
+    slider.addEventListener("touchmove", onTouchMove, { passive: true });
+
+    return () => {
+      slider.removeEventListener("mousedown", onMouseDown);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      slider.removeEventListener("wheel", onWheel);
+      slider.removeEventListener("touchstart", onTouchStart);
+      slider.removeEventListener("touchmove", onTouchMove);
+    };
+  }, []);
 
   const handleMovieClick = async (movieId) => {
     const data = await Api_Service.GetData(`movie/${movieId}/videos`);
@@ -46,7 +109,7 @@ const Actor = () => {
 
   return (
     <div className="w-full min-h-screen bg-[#0f0f0f] text-white pt-24 pb-24">
-      <div className="max-w-[1400px] mx-auto px-6">
+      <div className="max-w-350 mx-auto px-6">
         {/* TOP INFO */}
         <div className="flex flex-col lg:flex-row gap-12">
           {/* IMAGE */}
@@ -88,23 +151,25 @@ const Actor = () => {
         <div className="mt-24 relative">
           <h2 className="text-3xl font-bold mb-8">Movies Played In</h2>
 
-          {/* LEFT ARROW */}
-          <button
-            onClick={scrollLeft}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-black/70 hover:bg-black p-4 rounded-full"
-          >
-            <FaChevronLeft size={22} />
-          </button>
+          {/* NOTE:
+              Arrows removed to match requirement (no visible left/right icons).
+              Slider supports mouse drag, wheel-to-scroll (vertical -> horizontal),
+              and touch swiping. If you want to show arrows only on some breakpoints
+              you can re-add buttons and control visibility with Tailwind classes
+              like "hidden md:block" or "block md:hidden".
+          */}
 
-          {/* SLIDER CONTAINER (moved left with negative margin) */}
           <div
             ref={sliderRef}
-            className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide -ml-16"
+            role="list"
+            className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide -ml-16 pr-6"
+            style={{ cursor: "grab" }}
           >
             {movies.map((movie) => (
               <div
                 key={movie.id}
-                className="min-w-[240px] cursor-pointer"
+                role="listitem"
+                className="min-w-60 cursor-pointer"
                 onClick={() => handleMovieClick(movie.id)}
               >
                 <img
@@ -121,14 +186,6 @@ const Actor = () => {
               </div>
             ))}
           </div>
-
-          {/* RIGHT ARROW */}
-          <button
-            onClick={scrollRight}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-black/70 hover:bg-black p-4 rounded-full"
-          >
-            <FaChevronRight size={22} />
-          </button>
         </div>
       </div>
 

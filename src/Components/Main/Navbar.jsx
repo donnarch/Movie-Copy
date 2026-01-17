@@ -6,11 +6,9 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 w-full z-[100] px-4 sm:px-6 md:px-8 lg:px-[40px] py-3 sm:py-4">
-      <div className="max-w-[1600px] mx-auto flex items-center justify-between">
-        {/* logo */}
-        {/* logo */}
-        <div className="w-[120px] sm:w-[140px] md:w-[160px] h-[60px] sm:h-[70px] md:h-[90px] flex items-center justify-center flex-shrink-0">
+    <nav className="fixed top-0 w-full z-100 px-4 sm:px-6 md:px-8 lg:px-10 py-3 sm:py-4">
+      <div className="max-w-400 mx-auto flex items-center justify-between">
+        <div className="w-30 sm:w-35 md:w-40 h-15 sm:h-17.5 md:h-22.5 flex items-center justify-center shrink-0">
           <NavLink to="/">
             <img
               src="/Image/Logo (1).png"
@@ -19,8 +17,6 @@ const Navbar = () => {
             />
           </NavLink>
         </div>
-
-        {/* menu - hidden on mobile */}
         <ul className="hidden lg:flex items-center justify-between gap-2 px-6 h-16 bg-black border-2 sm:border-3 border-[#3a3a3a] rounded-xl text-white">
           <li>
             <NavLink
