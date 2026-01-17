@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Api_Service from "../../Service/Api_Service";
+import Logo from "../../../public/Image/Abstract Design.png";
 
 export default function HeroSection() {
   const [row1, setRow1] = useState([]);
@@ -110,7 +111,7 @@ export default function HeroSection() {
           {/* Logo */}
           <div className="mb-16 sm:mb-10 md:mb-16 lg:mb-20 flex justify-center">
             <img
-              src="/public/Image/Abstract Design.png"
+              src={Logo}
               alt="Logo"
               className="h-50 sm:h-16 md:h-24 lg:h-72 object-contain"
             />
