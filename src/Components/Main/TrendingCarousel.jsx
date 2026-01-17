@@ -15,16 +15,18 @@ export default function TrendingCarousel({ title, url }) {
 
   const [movies, setMovies] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [cardWidth, setCardWidth] = useState(180); // increased default width
-
-  const GAP = 16;
+  const [cardWidth, setCardWidth] = useState(160); // base width
+  const GAP = 12;
 
   /* ---------------- RESPONSIVE CARD WIDTH ---------------- */
   useEffect(() => {
     const updateWidth = () => {
-      if (window.innerWidth < 640) setCardWidth(160); // mobile
-      else if (window.innerWidth < 1024) setCardWidth(200); // tablet
-      else setCardWidth(240); // desktop
+      if (window.innerWidth < 480)
+        setCardWidth(window.innerWidth * 0.4); // 2.5 cards visible
+      else if (window.innerWidth < 768)
+        setCardWidth(window.innerWidth * 0.25); // ~3-4 cards
+      else if (window.innerWidth < 1024) setCardWidth(180); // tablet
+      else setCardWidth(220); // desktop
     };
 
     updateWidth();
@@ -88,7 +90,6 @@ export default function TrendingCarousel({ title, url }) {
           <div className="h-1 w-16 bg-red-600" />
         </div>
 
-        {/* ARROWS (hidden on mobile) */}
         <div className="hidden sm:flex gap-3">
           <button
             onClick={handlePrev}
@@ -108,7 +109,7 @@ export default function TrendingCarousel({ title, url }) {
       {/* ================= SLIDER ================= */}
       <div
         ref={scrollRef}
-        className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth"
+        className="flex gap-3 sm:gap-4 md:gap-5 overflow-x-auto scrollbar-hide scroll-smooth"
       >
         {movies.map((movie) => (
           <div
@@ -118,14 +119,12 @@ export default function TrendingCarousel({ title, url }) {
             onClick={() => navigate(`/movie/${movie.id}`, { state: { movie } })}
           >
             <div
-              className="
+              className={`
                 relative rounded-xl overflow-hidden
-                border border-gray-700
-                hover:border-gray-400
-                transition
-                group
-                h-[220px] sm:h-[260px] md:h-[300px] lg:h-[350px] 
-              "
+                border border-gray-700 hover:border-gray-400
+                transition group
+                h-[180px] sm:h-[220px] md:h-[260px] lg:h-[300px]
+              `}
             >
               <img
                 src={
@@ -137,7 +136,6 @@ export default function TrendingCarousel({ title, url }) {
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
 
-              {/* INFO */}
               <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black via-black/80 to-transparent p-2">
                 <h2 className="text-white text-xs sm:text-sm font-semibold truncate">
                   {movie.title}
