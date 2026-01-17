@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Api_Service from "../../Service/Api_Service";
 import {
@@ -15,26 +15,6 @@ export default function TrendingCarousel({ title, url }) {
 
   const [movies, setMovies] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [cardWidth, setCardWidth] = useState(160); // base width
-  const GAP = 12;
-
-  /* ---------------- RESPONSIVE CARD WIDTH ---------------- */
-  useEffect(() => {
-    const updateWidth = () => {
-      if (window.innerWidth < 480)
-        setCardWidth(window.innerWidth * 0.4); // 2.5 cards visible
-      else if (window.innerWidth < 768)
-        setCardWidth(window.innerWidth * 0.25); // ~3-4 cards
-      else if (window.innerWidth < 1024) setCardWidth(180); // tablet
-      else setCardWidth(220); // desktop
-    };
-
-    updateWidth();
-    window.addEventListener("resize", updateWidth);
-    return () => window.removeEventListener("resize", updateWidth);
-  }, []);
-
-  const STEP = cardWidth + GAP;
 
   /* ---------------- FETCH MOVIES ---------------- */
   useEffect(() => {
@@ -48,36 +28,20 @@ export default function TrendingCarousel({ title, url }) {
     const el = scrollRef.current;
     if (!el) return;
 
-    let raf = null;
     const onScroll = () => {
-      if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        setCurrentIndex(Math.round(el.scrollLeft / STEP));
-      });
+      setCurrentIndex(Math.round(el.scrollLeft / 180));
     };
 
     el.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      el.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, [STEP]);
+    return () => el.removeEventListener("scroll", onScroll);
+  }, []);
 
-  const scrollToIndex = (index) => {
-    if (!movies.length) return;
-
-    const max = movies.length - 1;
-    const clamped = Math.max(0, Math.min(index, max));
-
-    setCurrentIndex(clamped);
-    scrollRef.current.scrollTo({
-      left: clamped * STEP,
+  const scrollBy = (amount) => {
+    scrollRef.current.scrollBy({
+      left: amount,
       behavior: "smooth",
     });
   };
-
-  const handlePrev = () => scrollToIndex(currentIndex - 1);
-  const handleNext = () => scrollToIndex(currentIndex + 1);
 
   return (
     <section className="bg-black px-4 sm:px-8 py-16 pt-24">
@@ -90,16 +54,17 @@ export default function TrendingCarousel({ title, url }) {
           <div className="h-1 w-16 bg-red-600" />
         </div>
 
+        {/* ARROWS (hidden on mobile) */}
         <div className="hidden sm:flex gap-3">
           <button
-            onClick={handlePrev}
-            className="bg-gray-900 hover:bg-red-700 text-white rounded-full p-3 cursor-pointer"
+            onClick={() => scrollBy(-400)}
+            className="bg-gray-900 hover:bg-red-700 text-white rounded-full p-3"
           >
             <FaChevronLeft />
           </button>
           <button
-            onClick={handleNext}
-            className="bg-gray-900 hover:bg-red-700 text-white rounded-full p-3 cursor-pointer"
+            onClick={() => scrollBy(400)}
+            className="bg-gray-900 hover:bg-red-700 text-white rounded-full p-3"
           >
             <FaChevronRight />
           </button>
@@ -109,22 +74,34 @@ export default function TrendingCarousel({ title, url }) {
       {/* ================= SLIDER ================= */}
       <div
         ref={scrollRef}
-        className="flex gap-3 sm:gap-4 md:gap-5 overflow-x-auto scrollbar-hide scroll-smooth"
+        className="
+          flex gap-4
+          overflow-x-auto
+          scrollbar-hide
+          scroll-smooth
+          snap-x snap-mandatory
+        "
       >
         {movies.map((movie) => (
           <div
             key={movie.id}
-            style={{ minWidth: cardWidth }}
-            className="shrink-0 cursor-pointer"
+            className="
+              snap-start shrink-0 cursor-pointer
+              w-[130px] sm:w-[160px] md:w-[180px] lg:w-[220px]
+            "
             onClick={() => navigate(`/movie/${movie.id}`, { state: { movie } })}
           >
+            {/* CARD */}
             <div
-              className={`
-                relative rounded-xl overflow-hidden
-                border border-gray-700 hover:border-gray-400
-                transition group
-                h-[180px] sm:h-[220px] md:h-[260px] lg:h-[300px]
-              `}
+              className="
+                relative
+                h-[195px] sm:h-[240px] md:h-[270px] lg:h-[330px]
+                rounded-xl overflow-hidden
+                border border-gray-700
+                hover:border-gray-400
+                transition
+                group
+              "
             >
               <img
                 src={
@@ -133,10 +110,15 @@ export default function TrendingCarousel({ title, url }) {
                     : "/placeholder-poster.png"
                 }
                 alt={movie.title}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                className="
+                  w-full h-full object-cover
+                  transition-transform duration-300
+                  group-hover:scale-105
+                "
               />
 
-              <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black via-black/80 to-transparent p-2">
+              {/* INFO */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/80 to-transparent p-2">
                 <h2 className="text-white text-xs sm:text-sm font-semibold truncate">
                   {movie.title}
                 </h2>
