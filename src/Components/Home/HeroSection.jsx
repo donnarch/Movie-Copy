@@ -110,7 +110,7 @@ export default function HeroSection() {
           {/* Logo */}
           <div className="mb-16 sm:mb-10 md:mb-16 lg:mb-20 flex justify-center">
             <img
-              src="/public/Image/Abstract Design.png"
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRD0Aq7WzGMovaRbhXkAI6bZNi8xfgkXzNEAQ&s"
               alt="Logo"
               className="h-50 sm:h-16 md:h-24 lg:h-72 object-contain"
             />
